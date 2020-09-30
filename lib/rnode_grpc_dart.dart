@@ -1,7 +1,3 @@
 library rnode_grpc_dart;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'package:rnode_grpc_dart/src/rnode_grpc/rnode_grpc.dart';
