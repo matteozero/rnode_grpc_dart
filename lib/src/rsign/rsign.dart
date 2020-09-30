@@ -6,8 +6,6 @@ import 'dart:typed_data';
 import 'package:asn1lib/asn1lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rnode_grpc_dart/src/generated_protoc_files/CasperMessage.pb.dart';
-// import 'package:capo_core_dart/src/utils/numbers.dart';
-// import 'package:capo_core_dart/src/utils/utils.dart';
 import 'package:fixnum/fixnum.dart';
 import "package:pointycastle/export.dart";
 

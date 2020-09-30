@@ -11,36 +11,34 @@ import 'package:hex/hex.dart';
 class RNodeDeployGRPCService {
   String host;
   int port;
-  DeployServiceClient deployService;
+  DeployServiceClient _deployService;
 
-  static final RNodeDeployGRPCService _instance =
+  static final RNodeDeployGRPCService shared =
       RNodeDeployGRPCService._internal();
   final ChannelOptions options =
       const ChannelOptions(credentials: const ChannelCredentials.insecure());
 
   RNodeDeployGRPCService._internal();
 
-  factory RNodeDeployGRPCService() => _instance;
-
-  void switchDeployChannelHost({@required String host, int port = 40401}) {
+  void setDeployChannelHost({@required String host, int port = 40401}) {
     this.host = host;
     this.port = port;
     ClientChannel channel = ClientChannel(host, port: port, options: options);
-    deployService = DeployServiceClient(channel);
+    _deployService = DeployServiceClient(channel);
   }
 
   Future<Map> sendDeploy(
       {@required String deployCode, @required String privateKey}) async {
     final blocksQuery = BlocksQuery();
     blocksQuery.depth = 1;
-    final blocks = await deployService.getBlocks(blocksQuery).first;
+    final blocks = await _deployService.getBlocks(blocksQuery).first;
     final blockNumber = blocks.blockInfo.blockNumber;
 
     final data = DeployDataProto();
     data.term = deployCode;
     final DeployDataProto signedData = rSign.sign(
         blockNumber: blockNumber, unSignData: data, privateKey: privateKey);
-    DeployResponse response = await deployService.doDeploy(signedData);
+    DeployResponse response = await _deployService.doDeploy(signedData);
     return {"deployID": HEX.encode(signedData.sig), "response": response};
   }
 }
@@ -48,29 +46,27 @@ class RNodeDeployGRPCService {
 class RNodeExploratoryDeployGRPCService {
   String host;
   int port;
-  DeployServiceClient exploratoryDeployService;
+  DeployServiceClient _exploratoryDeployService;
 
-  static final RNodeExploratoryDeployGRPCService _instance =
+  static final RNodeExploratoryDeployGRPCService shared =
       RNodeExploratoryDeployGRPCService._internal();
   final ChannelOptions options =
       const ChannelOptions(credentials: const ChannelCredentials.insecure());
 
   RNodeExploratoryDeployGRPCService._internal();
 
-  factory RNodeExploratoryDeployGRPCService() => _instance;
-
-  void switchDeployChannelHost({@required String host, int port = 40401}) {
+  void setDeployChannelHost({@required String host, int port = 40401}) {
     this.host = host;
     this.port = port;
     ClientChannel channel = ClientChannel(host, port: port, options: options);
-    exploratoryDeployService = DeployServiceClient(channel);
+    _exploratoryDeployService = DeployServiceClient(channel);
   }
 
   Future<ExploratoryDeployResponse> sendExploratoryDeploy(
       {@required String deployCode}) async {
     var params = ExploratoryDeployQuery();
     params.term = deployCode;
-    var response = await exploratoryDeployService.exploratoryDeploy(params);
+    var response = await _exploratoryDeployService.exploratoryDeploy(params);
     return response;
   }
 }
