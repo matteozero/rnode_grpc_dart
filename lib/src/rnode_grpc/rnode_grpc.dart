@@ -1,12 +1,18 @@
 library rnode_grpc;
 
+import 'package:flutter/cupertino.dart';
+import 'package:grpc/grpc.dart';
+import 'package:hex/hex.dart';
 import 'package:rnode_grpc_dart/src/generated_protoc_files/CasperMessage.pb.dart';
 import 'package:rnode_grpc_dart/src/generated_protoc_files/DeployServiceCommon.pb.dart';
 import 'package:rnode_grpc_dart/src/generated_protoc_files/DeployServiceV1.pbgrpc.dart';
 import 'package:rnode_grpc_dart/src/rsign/rsign.dart' as rSign;
-import 'package:flutter/cupertino.dart';
-import 'package:grpc/grpc.dart';
-import 'package:hex/hex.dart';
+
+final ChannelOptions _options = const ChannelOptions(
+    credentials: const ChannelCredentials.insecure(),
+    connectionTimeout: Duration(seconds: 20),
+    idleTimeout: Duration(seconds: 10)
+);
 
 class RNodeDeployGRPCService {
   String host;
@@ -15,15 +21,13 @@ class RNodeDeployGRPCService {
 
   static final RNodeDeployGRPCService shared =
       RNodeDeployGRPCService._internal();
-  final ChannelOptions options =
-      const ChannelOptions(credentials: const ChannelCredentials.insecure());
 
   RNodeDeployGRPCService._internal();
 
   void setDeployChannelHost({@required String host, int port = 40401}) {
     this.host = host;
     this.port = port;
-    ClientChannel channel = ClientChannel(host, port: port, options: options);
+    ClientChannel channel = ClientChannel(host, port: port, options: _options);
     _deployService = DeployServiceClient(channel);
   }
 
@@ -50,15 +54,13 @@ class RNodeExploratoryDeployGRPCService {
 
   static final RNodeExploratoryDeployGRPCService shared =
       RNodeExploratoryDeployGRPCService._internal();
-  final ChannelOptions options =
-      const ChannelOptions(credentials: const ChannelCredentials.insecure());
 
   RNodeExploratoryDeployGRPCService._internal();
 
   void setDeployChannelHost({@required String host, int port = 40401}) {
     this.host = host;
     this.port = port;
-    ClientChannel channel = ClientChannel(host, port: port, options: options);
+    ClientChannel channel = ClientChannel(host, port: port, options: _options);
     _exploratoryDeployService = DeployServiceClient(channel);
   }
 
@@ -66,7 +68,8 @@ class RNodeExploratoryDeployGRPCService {
       {@required String deployCode}) async {
     var params = ExploratoryDeployQuery();
     params.term = deployCode;
-    var response = await _exploratoryDeployService.exploratoryDeploy(params);
+    var response = await _exploratoryDeployService
+        .exploratoryDeploy(params);
     return response;
   }
 }
